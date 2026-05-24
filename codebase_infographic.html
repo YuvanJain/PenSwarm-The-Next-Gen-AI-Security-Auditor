@@ -1,0 +1,550 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>PenSwarm — Codebase Vulnerability Analysis</title>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800;900&display=swap"
+        rel="stylesheet">
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Inter', sans-serif;
+            background: #0a0e1a;
+            color: #e0e6f0;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            min-height: 100vh;
+            overflow: hidden;
+        }
+
+        .infographic {
+            width: 1200px;
+            height: 900px;
+            position: relative;
+            background: radial-gradient(ellipse at center, #111832 0%, #0a0e1a 70%);
+            overflow: hidden;
+            padding: 30px 60px;
+        }
+
+        .infographic::before {
+            content: '';
+            position: absolute;
+            inset: 0;
+            background-image:
+                linear-gradient(rgba(100, 140, 255, 0.03) 1px, transparent 1px),
+                linear-gradient(90deg, rgba(100, 140, 255, 0.03) 1px, transparent 1px);
+            background-size: 40px 40px;
+            pointer-events: none;
+        }
+
+        .title-area {
+            text-align: center;
+            position: relative;
+            z-index: 10;
+            margin-bottom: 15px;
+        }
+
+        .title-area h1 {
+            font-size: 32px;
+            font-weight: 800;
+            background: linear-gradient(135deg, #34d399, #60a5fa, #a78bfa);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            letter-spacing: -0.5px;
+        }
+
+        .subtitle {
+            margin-top: 8px;
+            font-size: 13px;
+            font-weight: 500;
+            letter-spacing: 4px;
+            text-transform: uppercase;
+            color: rgba(160, 180, 220, 0.6);
+        }
+
+        .subtitle span {
+            color: #34d399;
+        }
+
+        /* Pipeline */
+        .pipeline {
+            position: relative;
+            z-index: 10;
+            display: flex;
+            flex-direction: column;
+            gap: 0;
+            margin-top: 10px;
+        }
+
+        .step-row {
+            display: flex;
+            align-items: center;
+            gap: 30px;
+            position: relative;
+        }
+
+        .step-row.reverse {
+            flex-direction: row-reverse;
+        }
+
+        /* The vertical connector line between steps */
+        .connector {
+            display: flex;
+            justify-content: center;
+            padding: 0 0 0 50px;
+        }
+
+        .connector.right {
+            padding: 0 0 0 0;
+            justify-content: flex-end;
+            padding-right: 50px;
+        }
+
+        .connector svg {
+            display: block;
+        }
+
+        /* Step number circle */
+        .step-number {
+            width: 64px;
+            height: 64px;
+            min-width: 64px;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 22px;
+            font-weight: 800;
+            border: 2px solid;
+            position: relative;
+        }
+
+        /* Step content */
+        .step-content {
+            flex: 1;
+            padding: 16px 24px;
+            border-radius: 16px;
+            background: rgba(255, 255, 255, 0.03);
+            border: 1px solid rgba(255, 255, 255, 0.06);
+            backdrop-filter: blur(10px);
+            max-width: 460px;
+        }
+
+        .step-title {
+            font-size: 15px;
+            font-weight: 700;
+            margin-bottom: 5px;
+        }
+
+        .step-desc {
+            font-size: 11px;
+            color: rgba(200, 210, 230, 0.6);
+            line-height: 1.5;
+        }
+
+        .step-icon {
+            font-size: 28px;
+            margin-bottom: 4px;
+        }
+
+        /* Color themes for steps */
+        .step-1 .step-number {
+            background: rgba(96, 165, 250, 0.1);
+            border-color: rgba(96, 165, 250, 0.5);
+            color: #60a5fa;
+            box-shadow: 0 0 20px rgba(96, 165, 250, 0.15);
+        }
+
+        .step-1 .step-title {
+            color: #60a5fa;
+        }
+
+        .step-2 .step-number {
+            background: rgba(34, 211, 238, 0.1);
+            border-color: rgba(34, 211, 238, 0.5);
+            color: #22d3ee;
+            box-shadow: 0 0 20px rgba(34, 211, 238, 0.15);
+        }
+
+        .step-2 .step-title {
+            color: #22d3ee;
+        }
+
+        .step-3 .step-number {
+            background: rgba(52, 211, 153, 0.1);
+            border-color: rgba(52, 211, 153, 0.5);
+            color: #34d399;
+            box-shadow: 0 0 20px rgba(52, 211, 153, 0.15);
+        }
+
+        .step-3 .step-title {
+            color: #34d399;
+        }
+
+        .step-4 .step-number {
+            background: rgba(251, 191, 36, 0.1);
+            border-color: rgba(251, 191, 36, 0.5);
+            color: #fbbf24;
+            box-shadow: 0 0 20px rgba(251, 191, 36, 0.15);
+        }
+
+        .step-4 .step-title {
+            color: #fbbf24;
+        }
+
+        .step-5 .step-number {
+            background: rgba(248, 113, 113, 0.1);
+            border-color: rgba(248, 113, 113, 0.5);
+            color: #f87171;
+            box-shadow: 0 0 20px rgba(248, 113, 113, 0.15);
+        }
+
+        .step-5 .step-title {
+            color: #f87171;
+        }
+
+        .step-6 .step-number {
+            background: rgba(167, 139, 250, 0.1);
+            border-color: rgba(167, 139, 250, 0.5);
+            color: #a78bfa;
+            box-shadow: 0 0 20px rgba(167, 139, 250, 0.15);
+        }
+
+        .step-6 .step-title {
+            color: #a78bfa;
+        }
+
+        /* Language badges */
+        .lang-badges {
+            display: flex;
+            gap: 6px;
+            flex-wrap: wrap;
+            margin-top: 8px;
+        }
+
+        .lang-badge {
+            padding: 3px 8px;
+            border-radius: 6px;
+            font-size: 9px;
+            font-weight: 600;
+            background: rgba(52, 211, 153, 0.1);
+            border: 1px solid rgba(52, 211, 153, 0.2);
+            color: #6ee7b7;
+            letter-spacing: 0.5px;
+        }
+
+        /* Vulnerability type tags */
+        .vuln-tags {
+            display: flex;
+            gap: 5px;
+            flex-wrap: wrap;
+            margin-top: 8px;
+        }
+
+        .vuln-tag {
+            padding: 3px 8px;
+            border-radius: 6px;
+            font-size: 9px;
+            font-weight: 600;
+            background: rgba(248, 113, 113, 0.1);
+            border: 1px solid rgba(248, 113, 113, 0.2);
+            color: #fca5a5;
+            letter-spacing: 0.3px;
+        }
+
+        /* Output section */
+        .output-section {
+            text-align: center;
+            margin-top: 15px;
+            position: relative;
+            z-index: 10;
+        }
+
+        .output-badge {
+            display: inline-flex;
+            align-items: center;
+            gap: 10px;
+            padding: 12px 28px;
+            border-radius: 30px;
+            background: rgba(167, 139, 250, 0.08);
+            border: 1px solid rgba(167, 139, 250, 0.3);
+            font-size: 12px;
+            font-weight: 600;
+            color: #c4b5fd;
+            letter-spacing: 0.5px;
+        }
+
+        .output-detail {
+            margin-top: 6px;
+            font-size: 10px;
+            color: rgba(196, 181, 253, 0.5);
+        }
+
+        /* Layout: 2-column zigzag */
+        .zigzag {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 10px 40px;
+            position: relative;
+            z-index: 10;
+        }
+
+        .zigzag-step {
+            display: flex;
+            align-items: flex-start;
+            gap: 16px;
+            padding: 14px 20px;
+            border-radius: 16px;
+            background: rgba(255, 255, 255, 0.03);
+            border: 1px solid rgba(255, 255, 255, 0.06);
+            backdrop-filter: blur(10px);
+            transition: border-color 0.3s, box-shadow 0.3s;
+        }
+
+        .zigzag-step:hover {
+            border-color: rgba(255, 255, 255, 0.12);
+            box-shadow: 0 4px 30px rgba(0, 0, 0, 0.3);
+        }
+
+        .zigzag-step .step-number {
+            width: 50px;
+            height: 50px;
+            min-width: 50px;
+            font-size: 18px;
+        }
+
+        .zigzag-step .step-info {
+            flex: 1;
+        }
+
+        .zigzag-step .step-title {
+            font-size: 14px;
+            margin-bottom: 4px;
+        }
+
+        .zigzag-step .step-desc {
+            font-size: 10.5px;
+        }
+
+        /* Arrow connectors between grid cells */
+        .grid-arrow {
+            position: absolute;
+            z-index: 15;
+            color: rgba(160, 180, 220, 0.2);
+            font-size: 20px;
+        }
+
+        .brand {
+            position: absolute;
+            bottom: 12px;
+            right: 20px;
+            font-size: 10px;
+            color: rgba(160, 180, 220, 0.3);
+            letter-spacing: 1px;
+            z-index: 10;
+        }
+
+        /* Center connector line */
+        .center-line {
+            position: absolute;
+            left: 50%;
+            top: 120px;
+            bottom: 100px;
+            width: 2px;
+            background: linear-gradient(to bottom,
+                    rgba(96, 165, 250, 0.3),
+                    rgba(34, 211, 238, 0.3),
+                    rgba(52, 211, 153, 0.3),
+                    rgba(251, 191, 36, 0.3),
+                    rgba(248, 113, 113, 0.3),
+                    rgba(167, 139, 250, 0.3));
+            z-index: 4;
+        }
+
+        .center-line::after {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: -3px;
+            width: 8px;
+            height: 100%;
+            background: linear-gradient(to bottom,
+                    rgba(96, 165, 250, 0.05),
+                    rgba(167, 139, 250, 0.05));
+            filter: blur(4px);
+        }
+
+        /* Animated dot on center line */
+        .traveling-dot {
+            position: absolute;
+            left: 50%;
+            transform: translateX(-50%);
+            width: 8px;
+            height: 8px;
+            border-radius: 50%;
+            background: #60a5fa;
+            box-shadow: 0 0 12px rgba(96, 165, 250, 0.6);
+            z-index: 6;
+            animation: travel-down 5s ease-in-out infinite;
+        }
+
+        @keyframes travel-down {
+            0% {
+                top: 120px;
+                background: #60a5fa;
+                box-shadow: 0 0 12px rgba(96, 165, 250, 0.6);
+            }
+
+            20% {
+                background: #22d3ee;
+                box-shadow: 0 0 12px rgba(34, 211, 238, 0.6);
+            }
+
+            40% {
+                background: #34d399;
+                box-shadow: 0 0 12px rgba(52, 211, 153, 0.6);
+            }
+
+            60% {
+                background: #fbbf24;
+                box-shadow: 0 0 12px rgba(251, 191, 36, 0.6);
+            }
+
+            80% {
+                background: #f87171;
+                box-shadow: 0 0 12px rgba(248, 113, 113, 0.6);
+            }
+
+            100% {
+                top: calc(100% - 100px);
+                background: #a78bfa;
+                box-shadow: 0 0 12px rgba(167, 139, 250, 0.6);
+            }
+        }
+    </style>
+</head>
+
+<body>
+
+    <div class="infographic">
+        <div class="center-line"></div>
+        <div class="traveling-dot"></div>
+
+        <!-- Title -->
+        <div class="title-area">
+            <h1>Codebase Vulnerability Analysis</h1>
+            <div class="subtitle"><span>White-Box</span> Static Analysis · SAST</div>
+        </div>
+
+        <!-- 2-Column Zigzag Grid -->
+        <div class="zigzag">
+
+            <!-- Step 1: Left -->
+            <div class="zigzag-step step-1">
+                <div class="step-number">1</div>
+                <div class="step-info">
+                    <div class="step-title">📥 Input Repository</div>
+                    <div class="step-desc">User provides a GitHub repository URL or local codebase path for security
+                        analysis.</div>
+                </div>
+            </div>
+
+            <!-- Step 2: Right -->
+            <div class="zigzag-step step-2">
+                <div class="step-number">2</div>
+                <div class="step-info">
+                    <div class="step-title">📦 Clone & Isolate</div>
+                    <div class="step-desc">CodeScannerAgent performs a shallow clone to a secure, isolated temp
+                        environment. Auto-cleanup after scan.</div>
+                </div>
+            </div>
+
+            <!-- Step 3: Left -->
+            <div class="zigzag-step step-3">
+                <div class="step-number">3</div>
+                <div class="step-info">
+                    <div class="step-title">🔎 Discover & Filter Files</div>
+                    <div class="step-desc">Walks the directory tree, identifies source files across 16+ languages. Skips
+                        node_modules, .git, build folders.</div>
+                    <div class="lang-badges">
+                        <span class="lang-badge">Python</span>
+                        <span class="lang-badge">JavaScript</span>
+                        <span class="lang-badge">TypeScript</span>
+                        <span class="lang-badge">Java</span>
+                        <span class="lang-badge">Go</span>
+                        <span class="lang-badge">PHP</span>
+                        <span class="lang-badge">Ruby</span>
+                        <span class="lang-badge">Rust</span>
+                        <span class="lang-badge">C/C++</span>
+                        <span class="lang-badge">Swift</span>
+                        <span class="lang-badge">Kotlin</span>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Step 4: Right -->
+            <div class="zigzag-step step-4">
+                <div class="step-number">4</div>
+                <div class="step-info">
+                    <div class="step-title">✂️ Context-Aware Chunking</div>
+                    <div class="step-desc">Large files are split into overlapping 400-line chunks. Overlapping ensures
+                        the AI never loses context across function boundaries.</div>
+                </div>
+            </div>
+
+            <!-- Step 5: Left -->
+            <div class="zigzag-step step-5">
+                <div class="step-number">5</div>
+                <div class="step-info">
+                    <div class="step-title">🤖 AI Security Auditor</div>
+                    <div class="step-desc">Each chunk is streamed to a specialized LLM acting as an expert security
+                        researcher. Scans for:</div>
+                    <div class="vuln-tags">
+                        <span class="vuln-tag">SQL Injection</span>
+                        <span class="vuln-tag">XSS</span>
+                        <span class="vuln-tag">Command Injection</span>
+                        <span class="vuln-tag">Path Traversal</span>
+                        <span class="vuln-tag">SSRF</span>
+                        <span class="vuln-tag">Hardcoded Secrets</span>
+                        <span class="vuln-tag">Insecure Crypto</span>
+                        <span class="vuln-tag">Auth Bypass</span>
+                        <span class="vuln-tag">IDOR</span>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Step 6: Right -->
+            <div class="zigzag-step step-6">
+                <div class="step-number">6</div>
+                <div class="step-info">
+                    <div class="step-title">📋 Generate Audit Report</div>
+                    <div class="step-desc">Comprehensive report with exact line numbers, severity ratings (Critical →
+                        Low), confidence scores, code snippets & AI-generated drop-in fixes.</div>
+                </div>
+            </div>
+
+        </div>
+
+        <!-- Output -->
+        <div class="output-section">
+            <div class="output-badge">
+                📄 OUTPUT: Complete Source Code Security Audit Report
+            </div>
+            <div class="output-detail">Exact line numbers · Severity scores · Vulnerable code snippets · AI-generated
+                code fixes</div>
+        </div>
+
+        <div class="brand">PENSWARM AI</div>
+    </div>
+
+</body>
+
+</html>

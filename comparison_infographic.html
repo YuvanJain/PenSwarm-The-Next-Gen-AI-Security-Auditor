@@ -1,0 +1,394 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>PenSwarm vs Traditional Scanners</title>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800;900&display=swap"
+        rel="stylesheet">
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Inter', sans-serif;
+            background: #0a0e1a;
+            color: #e0e6f0;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            min-height: 100vh;
+            overflow: hidden;
+        }
+
+        .infographic {
+            width: 1200px;
+            height: 900px;
+            position: relative;
+            background: radial-gradient(ellipse at center, #111832 0%, #0a0e1a 70%);
+            overflow: hidden;
+            padding: 35px 50px;
+        }
+
+        .infographic::before {
+            content: '';
+            position: absolute;
+            inset: 0;
+            background-image:
+                linear-gradient(rgba(100, 140, 255, 0.03) 1px, transparent 1px),
+                linear-gradient(90deg, rgba(100, 140, 255, 0.03) 1px, transparent 1px);
+            background-size: 40px 40px;
+            pointer-events: none;
+        }
+
+        .title-area {
+            text-align: center;
+            position: relative;
+            z-index: 10;
+            margin-bottom: 30px;
+        }
+
+        .title-area h1 {
+            font-size: 32px;
+            font-weight: 800;
+            background: linear-gradient(135deg, #f87171, #fbbf24, #34d399, #60a5fa);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            letter-spacing: -0.5px;
+        }
+
+        .subtitle {
+            margin-top: 8px;
+            font-size: 13px;
+            font-weight: 500;
+            letter-spacing: 3px;
+            text-transform: uppercase;
+            color: rgba(160, 180, 220, 0.5);
+        }
+
+        /* Comparison table */
+        .comparison {
+            position: relative;
+            z-index: 10;
+            width: 100%;
+        }
+
+        .comp-header {
+            display: grid;
+            grid-template-columns: 220px 1fr 1fr;
+            gap: 0;
+            margin-bottom: 8px;
+        }
+
+        .comp-header-cell {
+            padding: 16px 24px;
+            text-align: center;
+            font-weight: 700;
+            font-size: 16px;
+            border-radius: 12px;
+        }
+
+        .comp-header-cell.feature-header {
+            text-align: left;
+            color: rgba(160, 180, 220, 0.5);
+            font-size: 12px;
+            letter-spacing: 2px;
+            text-transform: uppercase;
+            display: flex;
+            align-items: center;
+        }
+
+        .comp-header-cell.traditional {
+            background: rgba(248, 113, 113, 0.08);
+            border: 1px solid rgba(248, 113, 113, 0.15);
+            color: #fca5a5;
+            margin-right: 6px;
+        }
+
+        .comp-header-cell.penswarm {
+            background: rgba(52, 211, 153, 0.08);
+            border: 1px solid rgba(52, 211, 153, 0.15);
+            color: #6ee7b7;
+            margin-left: 6px;
+        }
+
+        .comp-row {
+            display: grid;
+            grid-template-columns: 220px 1fr 1fr;
+            gap: 0;
+            margin-bottom: 6px;
+            border-radius: 12px;
+            overflow: hidden;
+            transition: transform 0.2s;
+        }
+
+        .comp-row:hover {
+            transform: scale(1.01);
+        }
+
+        .comp-cell {
+            padding: 18px 24px;
+            display: flex;
+            align-items: center;
+            gap: 12px;
+        }
+
+        .comp-cell.feature {
+            background: rgba(255, 255, 255, 0.03);
+            border: 1px solid rgba(255, 255, 255, 0.04);
+            border-right: none;
+            border-radius: 12px 0 0 12px;
+        }
+
+        .comp-cell.traditional {
+            background: rgba(248, 113, 113, 0.04);
+            border: 1px solid rgba(248, 113, 113, 0.06);
+            border-left: none;
+            border-right: none;
+        }
+
+        .comp-cell.penswarm {
+            background: rgba(52, 211, 153, 0.04);
+            border: 1px solid rgba(52, 211, 153, 0.06);
+            border-left: none;
+            border-radius: 0 12px 12px 0;
+        }
+
+        .feature-icon {
+            font-size: 22px;
+            min-width: 28px;
+            text-align: center;
+        }
+
+        .feature-name {
+            font-size: 13px;
+            font-weight: 600;
+            color: #c7d2e8;
+        }
+
+        .cell-content {
+            font-size: 12px;
+            line-height: 1.5;
+        }
+
+        .comp-cell.traditional .cell-content {
+            color: rgba(252, 165, 165, 0.7);
+        }
+
+        .comp-cell.penswarm .cell-content {
+            color: rgba(110, 231, 183, 0.85);
+            font-weight: 500;
+        }
+
+        .status-icon {
+            font-size: 18px;
+            min-width: 24px;
+        }
+
+        /* Verdict section */
+        .verdict {
+            text-align: center;
+            margin-top: 25px;
+            position: relative;
+            z-index: 10;
+        }
+
+        .verdict-badge {
+            display: inline-flex;
+            align-items: center;
+            gap: 12px;
+            padding: 14px 36px;
+            border-radius: 30px;
+            background: linear-gradient(135deg, rgba(52, 211, 153, 0.1), rgba(96, 165, 250, 0.1));
+            border: 1px solid rgba(52, 211, 153, 0.25);
+            font-size: 14px;
+            font-weight: 700;
+            color: #6ee7b7;
+            letter-spacing: 0.5px;
+        }
+
+        .verdict-sub {
+            margin-top: 8px;
+            font-size: 11px;
+            color: rgba(160, 180, 220, 0.4);
+        }
+
+        .brand {
+            position: absolute;
+            bottom: 12px;
+            right: 20px;
+            font-size: 10px;
+            color: rgba(160, 180, 220, 0.3);
+            letter-spacing: 1px;
+            z-index: 10;
+        }
+
+        /* Subtle animated gradient line */
+        .divider-line {
+            position: absolute;
+            top: 0;
+            bottom: 0;
+            left: calc(220px + ((100% - 100px - 220px) / 2) + 50px);
+            width: 1px;
+            background: linear-gradient(to bottom,
+                    transparent,
+                    rgba(160, 180, 220, 0.1) 20%,
+                    rgba(160, 180, 220, 0.15) 50%,
+                    rgba(160, 180, 220, 0.1) 80%,
+                    transparent);
+            z-index: 3;
+        }
+    </style>
+</head>
+
+<body>
+
+    <div class="infographic">
+        <div class="divider-line"></div>
+
+        <!-- Title -->
+        <div class="title-area">
+            <h1>PenSwarm AI vs Traditional Scanners</h1>
+            <div class="subtitle">Why PenSwarm is the Future of Application Security</div>
+        </div>
+
+        <!-- Comparison Header -->
+        <div class="comparison">
+            <div class="comp-header">
+                <div class="comp-header-cell feature-header">Feature</div>
+                <div class="comp-header-cell traditional">❌ Traditional Scanners</div>
+                <div class="comp-header-cell penswarm">✅ PenSwarm AI</div>
+            </div>
+
+            <!-- Row 1 -->
+            <div class="comp-row">
+                <div class="comp-cell feature">
+                    <span class="feature-icon">🧠</span>
+                    <span class="feature-name">Approach</span>
+                </div>
+                <div class="comp-cell traditional">
+                    <span class="status-icon">⚙️</span>
+                    <span class="cell-content">Rule-based pattern matching with static signatures</span>
+                </div>
+                <div class="comp-cell penswarm">
+                    <span class="status-icon">🤖</span>
+                    <span class="cell-content">AI-powered contextual understanding with reasoning</span>
+                </div>
+            </div>
+
+            <!-- Row 2 -->
+            <div class="comp-row">
+                <div class="comp-cell feature">
+                    <span class="feature-icon">🎯</span>
+                    <span class="feature-name">False Positives</span>
+                </div>
+                <div class="comp-cell traditional">
+                    <span class="status-icon">📢</span>
+                    <span class="cell-content">High — floods security teams with noise and alerts</span>
+                </div>
+                <div class="comp-cell penswarm">
+                    <span class="status-icon">🔇</span>
+                    <span class="cell-content">Near zero — AI verification eliminates false positives</span>
+                </div>
+            </div>
+
+            <!-- Row 3 -->
+            <div class="comp-row">
+                <div class="comp-cell feature">
+                    <span class="feature-icon">⚡</span>
+                    <span class="feature-name">Exploit Generation</span>
+                </div>
+                <div class="comp-cell traditional">
+                    <span class="status-icon">🚫</span>
+                    <span class="cell-content">None — only flags potential issues without proof</span>
+                </div>
+                <div class="comp-cell penswarm">
+                    <span class="status-icon">💻</span>
+                    <span class="cell-content">AI dynamically writes & runs custom Python exploit scripts</span>
+                </div>
+            </div>
+
+            <!-- Row 4 -->
+            <div class="comp-row">
+                <div class="comp-cell feature">
+                    <span class="feature-icon">🔄</span>
+                    <span class="feature-name">Adaptability</span>
+                </div>
+                <div class="comp-cell traditional">
+                    <span class="status-icon">📋</span>
+                    <span class="cell-content">Static rules, requires manual signature updates</span>
+                </div>
+                <div class="comp-cell penswarm">
+                    <span class="status-icon">🧬</span>
+                    <span class="cell-content">Self-healing engine adapts in real-time, rewrites strategy on
+                        failure</span>
+                </div>
+            </div>
+
+            <!-- Row 5 -->
+            <div class="comp-row">
+                <div class="comp-cell feature">
+                    <span class="feature-icon">🔧</span>
+                    <span class="feature-name">Code Fixes</span>
+                </div>
+                <div class="comp-cell traditional">
+                    <span class="status-icon">📄</span>
+                    <span class="cell-content">Generic recommendations & documentation links</span>
+                </div>
+                <div class="comp-cell penswarm">
+                    <span class="status-icon">✨</span>
+                    <span class="cell-content">AI-generated drop-in code fixes with exact line numbers</span>
+                </div>
+            </div>
+
+            <!-- Row 6 -->
+            <div class="comp-row">
+                <div class="comp-cell feature">
+                    <span class="feature-icon">📊</span>
+                    <span class="feature-name">Coverage</span>
+                </div>
+                <div class="comp-cell traditional">
+                    <span class="status-icon">½</span>
+                    <span class="cell-content">Either SAST or DAST — separate tools, separate workflows</span>
+                </div>
+                <div class="comp-cell penswarm">
+                    <span class="status-icon">🏆</span>
+                    <span class="cell-content">Unified SAST + DAST in one platform, full-spectrum coverage</span>
+                </div>
+            </div>
+
+            <!-- Row 7 -->
+            <div class="comp-row">
+                <div class="comp-cell feature">
+                    <span class="feature-icon">👤</span>
+                    <span class="feature-name">Human Effort</span>
+                </div>
+                <div class="comp-cell traditional">
+                    <span class="status-icon">🏗️</span>
+                    <span class="cell-content">Requires expert configuration, triage, and interpretation</span>
+                </div>
+                <div class="comp-cell penswarm">
+                    <span class="status-icon">🚀</span>
+                    <span class="cell-content">Fully autonomous — zero human intervention needed</span>
+                </div>
+            </div>
+        </div>
+
+        <!-- Verdict -->
+        <div class="verdict">
+            <div class="verdict-badge">
+                🏆 PenSwarm AI: The World's First Autonomous, Self-Healing Security Platform
+            </div>
+            <div class="verdict-sub">SAST + DAST · AI Exploits · Zero False Positives · 16+ Languages</div>
+        </div>
+
+        <div class="brand">PENSWARM AI</div>
+    </div>
+
+</body>
+
+</html>

@@ -1,0 +1,409 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="description" content="PenSwarm AI — Enterprise Security Intelligence Platform">
+    <title>PenSwarm AI — Security Dashboard</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link
+        href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&family=JetBrains+Mono:wght@400;500;600&display=swap"
+        rel="stylesheet">
+    <link href="https://fonts.googleapis.com/icon?family=Material+Icons+Outlined" rel="stylesheet">
+    <link rel="stylesheet" href="/static/style.css">
+</head>
+
+<body>
+    <div class="app-shell">
+        <!-- ===== Sidebar ===== -->
+        <aside class="sidebar">
+            <div class="sidebar-top">
+                <div class="sidebar-brand">
+                    <div class="brand-icon">
+                        <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor"
+                            stroke-width="2">
+                            <polygon points="12 2 2 7 12 12 22 7 12 2" />
+                            <polyline points="2 17 12 22 22 17" />
+                            <polyline points="2 12 12 17 22 12" />
+                        </svg>
+                    </div>
+                    <div class="brand-text">
+                        <span class="brand-name">PenSwarm</span>
+                        <span class="brand-badge">AI</span>
+                    </div>
+                </div>
+
+                <div class="sidebar-section-label">Platform</div>
+                <nav class="sidebar-nav">
+                    <button class="nav-item active" data-tab="dynamic" id="tab-dynamic">
+                        <span class="material-icons-outlined">radar</span>
+                        <span>Dynamic Scan</span>
+                    </button>
+                    <button class="nav-item" data-tab="source" id="tab-source">
+                        <span class="material-icons-outlined">code</span>
+                        <span>Source Scan</span>
+                    </button>
+                    <button class="nav-item" disabled>
+                        <span class="material-icons-outlined">description</span>
+                        <span>Reports</span>
+                    </button>
+                </nav>
+
+                <div class="sidebar-section-label">Configuration</div>
+                <nav class="sidebar-nav">
+                    <button class="nav-item" disabled>
+                        <span class="material-icons-outlined">settings</span>
+                        <span>Settings</span>
+                    </button>
+                </nav>
+            </div>
+
+            <div class="sidebar-bottom">
+                <div class="sidebar-status" id="status-indicator">
+                    <div class="status-dot"></div>
+                    <span class="status-text" id="system-status">Operational</span>
+                </div>
+            </div>
+        </aside>
+
+        <!-- ===== Main Content ===== -->
+        <div class="main-wrapper">
+            <!-- Dynamic Scan Content -->
+            <main class="main-content" id="content-dynamic">
+                <!-- Top Bar: Config -->
+                <div class="config-bar">
+                    <div class="config-row">
+                        <div class="config-input-group">
+                            <label class="config-label">Target URL</label>
+                            <div class="input-with-icon">
+                                <span class="material-icons-outlined input-icon-el">language</span>
+                                <input type="text" id="target-url" class="config-input"
+                                    value="https://google-gruyere.appspot.com/571486264604118090326035032602781716276/"
+                                    placeholder="https://target-domain.com">
+                            </div>
+                        </div>
+                        <div class="config-actions">
+                            <button id="launch-btn" class="btn btn-primary">
+                                <span class="material-icons-outlined">play_arrow</span>
+                                Start Scan
+                            </button>
+                            <button id="abort-btn" class="btn btn-danger-outline" disabled>
+                                <span class="material-icons-outlined">stop</span>
+                                Stop
+                            </button>
+                        </div>
+                    </div>
+
+                    <!-- Auth Headers (collapsed by default) -->
+                    <details class="auth-details">
+                        <summary class="auth-toggle">
+                            <span class="material-icons-outlined">lock</span>
+                            Authentication Headers
+                            <span class="material-icons-outlined toggle-chevron">expand_more</span>
+                        </summary>
+                        <div class="auth-fields">
+                            <div class="auth-field">
+                                <label class="config-label">Session A (Primary)</label>
+                                <textarea id="manual-headers" class="config-input config-textarea code-font" rows="2"
+                                    placeholder="Authorization: Bearer token...&#10;Cookie: session=xyz"></textarea>
+                            </div>
+                            <div class="auth-field">
+                                <label class="config-label">Session B (IDOR)</label>
+                                <textarea id="manual-headers-b" class="config-input config-textarea code-font" rows="2"
+                                    placeholder="Cookie: lower_priv_session=123"></textarea>
+                            </div>
+                        </div>
+                    </details>
+
+                    <!-- Modules as pills -->
+                    <div class="modules-row">
+                        <span class="modules-label">Attack Vectors</span>
+                        <div class="module-pills">
+                            <label class="module-pill active-pill" data-module="Injection">
+                                <input type="checkbox" value="Injection" checked> Injection
+                            </label>
+                            <label class="module-pill active-pill" data-module="Cross-Site">
+                                <input type="checkbox" value="Cross-Site" checked> XSS
+                            </label>
+                            <label class="module-pill" data-module="Broken Auth">
+                                <input type="checkbox" value="Broken Auth"> Auth Bypass
+                            </label>
+                            <label class="module-pill" data-module="Access Control">
+                                <input type="checkbox" value="Access Control"> Access Control
+                            </label>
+                            <label class="module-pill" data-module="Server-Side">
+                                <input type="checkbox" value="Server-Side"> SSRF
+                            </label>
+                            <label class="module-pill" data-module="Logic Flaws">
+                                <input type="checkbox" value="Logic Flaws"> Logic Flaws
+                            </label>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Stats Row -->
+                <div class="stats-row">
+                    <div class="stat-card">
+                        <div class="stat-card-header">
+                            <span class="material-icons-outlined stat-icon">travel_explore</span>
+                            <span class="stat-card-title">Endpoints Found</span>
+                        </div>
+                        <div class="stat-card-value" id="endpoints-count">0</div>
+                    </div>
+                    <div class="stat-card">
+                        <div class="stat-card-header">
+                            <span class="material-icons-outlined stat-icon">bolt</span>
+                            <span class="stat-card-title">Payloads Tested</span>
+                        </div>
+                        <div class="stat-card-value" id="tests-count">0</div>
+                    </div>
+                    <div class="stat-card stat-card-success">
+                        <div class="stat-card-header">
+                            <span class="material-icons-outlined stat-icon">verified</span>
+                            <span class="stat-card-title">Confirmed Vulns</span>
+                        </div>
+                        <div class="stat-card-value" id="verified-count">0</div>
+                    </div>
+                    <div class="stat-card stat-card-danger">
+                        <div class="stat-card-header">
+                            <span class="material-icons-outlined stat-icon">block</span>
+                            <span class="stat-card-title">Failed</span>
+                        </div>
+                        <div class="stat-card-value" id="rejected-count">0</div>
+                    </div>
+                </div>
+
+                <!-- Progress strip -->
+                <div class="progress-strip">
+                    <div class="progress-phases">
+                        <div class="phase active" data-phase="discovery">
+                            <div class="phase-dot">1</div>
+                            <span>Recon</span>
+                        </div>
+                        <div class="phase-line"></div>
+                        <div class="phase" data-phase="analysis">
+                            <div class="phase-dot">2</div>
+                            <span>Analysis</span>
+                        </div>
+                        <div class="phase-line"></div>
+                        <div class="phase" data-phase="testing">
+                            <div class="phase-dot">3</div>
+                            <span>Exploitation</span>
+                        </div>
+                        <div class="phase-line"></div>
+                        <div class="phase" data-phase="reporting">
+                            <div class="phase-dot">4</div>
+                            <span>Report</span>
+                        </div>
+                    </div>
+                    <div class="progress-bar-container">
+                        <div class="progress-info">
+                            <span id="progress-label" class="progress-label">Awaiting deployment...</span>
+                            <span id="progress-percent" class="progress-value">0%</span>
+                        </div>
+                        <div class="progress-track">
+                            <div id="progress-fill" class="progress-fill">
+                                <div class="progress-bar-glow"></div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Bottom: Findings + Terminal -->
+                <div class="content-bottom">
+                    <div class="findings-panel">
+                        <div class="panel-title-bar">
+                            <h3>Findings</h3>
+                            <div class="pulse-indicator"></div>
+                        </div>
+                        <div id="findings-list" class="findings-body custom-scrollbar">
+                            <div class="finding-empty">
+                                <span class="material-icons-outlined empty-icon-el">shield</span>
+                                <span>Awaiting target acquisition...</span>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="terminal-panel">
+                        <div class="terminal-header">
+                            <div class="terminal-dots">
+                                <span></span><span></span><span></span>
+                            </div>
+                            <span class="terminal-title">Live Feed</span>
+                            <button id="clear-logs" class="icon-btn" title="Clear Buffer">
+                                <span class="material-icons-outlined" style="font-size:16px;">delete_outline</span>
+                            </button>
+                        </div>
+                        <div id="log-console" class="terminal-body code-font custom-scrollbar">
+                            <div class="log-entry log-system">
+                                <span class="log-time">[--:--:--]</span>
+                                <span class="log-badge badge-sys">[SYS]</span>
+                                <span class="log-msg">PenSwarm AI initialized. Ready for operations.</span>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </main>
+
+            <!-- Source Scan Content -->
+            <main class="main-content" id="content-source" style="display: none;">
+                <!-- Top Bar: Source Config -->
+                <div class="config-bar">
+                    <div class="config-row">
+                        <div class="config-input-group">
+                            <label class="config-label">GitHub Repository</label>
+                            <div class="input-with-icon">
+                                <span class="material-icons-outlined input-icon-el">code</span>
+                                <input type="text" id="repo-url" class="config-input"
+                                    placeholder="https://github.com/user/repo" value="">
+                            </div>
+                        </div>
+                        <div class="config-actions">
+                            <button id="code-scan-btn" class="btn btn-primary">
+                                <span class="material-icons-outlined">play_arrow</span>
+                                Scan Source
+                            </button>
+                            <button id="code-abort-btn" class="btn btn-danger-outline" disabled>
+                                <span class="material-icons-outlined">stop</span>
+                                Stop
+                            </button>
+                        </div>
+                    </div>
+
+                    <div class="source-info-row">
+                        <div class="info-chip-group">
+                            <span class="info-chip-label">Scans for:</span>
+                            <span class="info-chip">SQLi</span>
+                            <span class="info-chip">XSS</span>
+                            <span class="info-chip">CMDi</span>
+                            <span class="info-chip">Path Traversal</span>
+                            <span class="info-chip">SSRF</span>
+                            <span class="info-chip">Hardcoded Secrets</span>
+                            <span class="info-chip">Auth Bypass</span>
+                        </div>
+                        <div class="info-chip-group">
+                            <span class="info-chip-label">Languages:</span>
+                            <span class="info-chip lang">Python</span>
+                            <span class="info-chip lang">JavaScript</span>
+                            <span class="info-chip lang">TypeScript</span>
+                            <span class="info-chip lang">Java</span>
+                            <span class="info-chip lang">Go</span>
+                            <span class="info-chip lang">PHP</span>
+                            <span class="info-chip lang">Rust</span>
+                            <span class="info-chip lang">C/C++</span>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Source Stats Row -->
+                <div class="stats-row">
+                    <div class="stat-card">
+                        <div class="stat-card-header">
+                            <span class="material-icons-outlined stat-icon">description</span>
+                            <span class="stat-card-title">Files Scanned</span>
+                        </div>
+                        <div class="stat-card-value" id="cs-files-count">0</div>
+                    </div>
+                    <div class="stat-card stat-card-critical">
+                        <div class="stat-card-header">
+                            <span class="material-icons-outlined stat-icon">error</span>
+                            <span class="stat-card-title">Critical</span>
+                        </div>
+                        <div class="stat-card-value" id="cs-critical-count">0</div>
+                    </div>
+                    <div class="stat-card stat-card-high">
+                        <div class="stat-card-header">
+                            <span class="material-icons-outlined stat-icon">warning</span>
+                            <span class="stat-card-title">High</span>
+                        </div>
+                        <div class="stat-card-value" id="cs-high-count">0</div>
+                    </div>
+                    <div class="stat-card stat-card-medium">
+                        <div class="stat-card-header">
+                            <span class="material-icons-outlined stat-icon">info</span>
+                            <span class="stat-card-title">Medium</span>
+                        </div>
+                        <div class="stat-card-value" id="cs-medium-count">0</div>
+                    </div>
+                </div>
+
+                <!-- Source Progress -->
+                <div class="progress-strip">
+                    <div class="progress-phases">
+                        <div class="phase active" id="cs-phase-clone">
+                            <div class="phase-dot">1</div>
+                            <span>Clone</span>
+                        </div>
+                        <div class="phase-line"></div>
+                        <div class="phase" id="cs-phase-discover">
+                            <div class="phase-dot">2</div>
+                            <span>Discover</span>
+                        </div>
+                        <div class="phase-line"></div>
+                        <div class="phase" id="cs-phase-analyze">
+                            <div class="phase-dot">3</div>
+                            <span>Analyze</span>
+                        </div>
+                        <div class="phase-line"></div>
+                        <div class="phase" id="cs-phase-complete">
+                            <div class="phase-dot">4</div>
+                            <span>Complete</span>
+                        </div>
+                    </div>
+                    <div class="progress-bar-container">
+                        <div class="progress-info">
+                            <span id="cs-progress-label" class="progress-label">Ready to scan...</span>
+                            <span id="cs-progress-percent" class="progress-value">0%</span>
+                        </div>
+                        <div class="progress-track">
+                            <div id="cs-progress-fill" class="progress-fill">
+                                <div class="progress-bar-glow"></div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Bottom: Findings + Terminal -->
+                <div class="content-bottom">
+                    <div class="findings-panel">
+                        <div class="panel-title-bar">
+                            <h3>Source Vulnerabilities</h3>
+                            <div class="pulse-indicator"></div>
+                        </div>
+                        <div id="code-findings-list" class="findings-body custom-scrollbar">
+                            <div class="finding-empty">
+                                <span class="material-icons-outlined empty-icon-el">code</span>
+                                <span>Paste a GitHub repo URL and click Scan...</span>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="terminal-panel">
+                        <div class="terminal-header">
+                            <div class="terminal-dots">
+                                <span></span><span></span><span></span>
+                            </div>
+                            <span class="terminal-title">Source Scanner Console</span>
+                            <button id="clear-code-logs" class="icon-btn" title="Clear Buffer">
+                                <span class="material-icons-outlined" style="font-size:16px;">delete_outline</span>
+                            </button>
+                        </div>
+                        <div id="code-log-console" class="terminal-body code-font custom-scrollbar">
+                            <div class="log-entry log-system">
+                                <span class="log-time">[--:--:--]</span>
+                                <span class="log-badge badge-sys">[SYS]</span>
+                                <span class="log-msg">Source scanner ready. Paste a GitHub URL to begin.</span>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </main>
+        </div>
+    </div>
+
+    <script src="/static/script.js"></script>
+</body>
+
+</html>

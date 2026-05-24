@@ -1,0 +1,679 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>PenSwarm — Tech Stack</title>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800;900&display=swap"
+        rel="stylesheet">
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Inter', sans-serif;
+            background: #0a0e1a;
+            color: #e0e6f0;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            min-height: 100vh;
+            overflow: hidden;
+        }
+
+        .infographic {
+            width: 1200px;
+            height: 900px;
+            position: relative;
+            background: radial-gradient(ellipse at center, #111832 0%, #0a0e1a 70%);
+            overflow: hidden;
+            padding: 30px 50px;
+        }
+
+        .infographic::before {
+            content: '';
+            position: absolute;
+            inset: 0;
+            background-image:
+                linear-gradient(rgba(100, 140, 255, 0.03) 1px, transparent 1px),
+                linear-gradient(90deg, rgba(100, 140, 255, 0.03) 1px, transparent 1px);
+            background-size: 40px 40px;
+            pointer-events: none;
+        }
+
+        .title-area {
+            text-align: center;
+            position: relative;
+            z-index: 10;
+            margin-bottom: 28px;
+        }
+
+        .title-area h1 {
+            font-size: 32px;
+            font-weight: 800;
+            background: linear-gradient(135deg, #fbbf24, #f87171, #a78bfa, #60a5fa);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            letter-spacing: -0.5px;
+        }
+
+        .subtitle {
+            margin-top: 8px;
+            font-size: 13px;
+            font-weight: 500;
+            letter-spacing: 3px;
+            text-transform: uppercase;
+            color: rgba(160, 180, 220, 0.5);
+        }
+
+        /* Layered Architecture */
+        .layers {
+            position: relative;
+            z-index: 10;
+            display: flex;
+            flex-direction: column;
+            gap: 12px;
+        }
+
+        .layer {
+            display: flex;
+            align-items: stretch;
+            gap: 0;
+            border-radius: 16px;
+            overflow: hidden;
+            transition: transform 0.2s, box-shadow 0.2s;
+        }
+
+        .layer:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 8px 30px rgba(0, 0, 0, 0.4);
+        }
+
+        .layer-label {
+            width: 180px;
+            min-width: 180px;
+            padding: 18px 20px;
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            gap: 4px;
+            border-right: 1px solid rgba(255, 255, 255, 0.05);
+        }
+
+        .layer-label .icon {
+            font-size: 22px;
+        }
+
+        .layer-label .name {
+            font-size: 13px;
+            font-weight: 700;
+            letter-spacing: 0.5px;
+        }
+
+        .layer-label .desc {
+            font-size: 9px;
+            color: rgba(200, 210, 230, 0.4);
+            text-transform: uppercase;
+            letter-spacing: 1px;
+        }
+
+        .layer-items {
+            flex: 1;
+            padding: 14px 20px;
+            display: flex;
+            flex-wrap: wrap;
+            gap: 10px;
+            align-items: center;
+        }
+
+        .tech-chip {
+            display: inline-flex;
+            align-items: center;
+            gap: 8px;
+            padding: 10px 16px;
+            border-radius: 10px;
+            font-size: 12px;
+            font-weight: 600;
+            border: 1px solid;
+            transition: transform 0.2s, box-shadow 0.2s;
+        }
+
+        .tech-chip:hover {
+            transform: scale(1.05);
+        }
+
+        .tech-chip .chip-icon {
+            font-size: 18px;
+            min-width: 20px;
+            text-align: center;
+        }
+
+        .tech-chip .chip-info {
+            display: flex;
+            flex-direction: column;
+        }
+
+        .tech-chip .chip-name {
+            font-size: 12px;
+            font-weight: 700;
+        }
+
+        .tech-chip .chip-role {
+            font-size: 9px;
+            opacity: 0.6;
+            margin-top: 1px;
+        }
+
+        /* Layer 1: AI / LLM — Red/Orange */
+        .layer-ai .layer-label {
+            background: rgba(248, 113, 113, 0.08);
+        }
+
+        .layer-ai .layer-label .name {
+            color: #f87171;
+        }
+
+        .layer-ai .layer-items {
+            background: rgba(248, 113, 113, 0.03);
+        }
+
+        .layer-ai .tech-chip {
+            background: rgba(248, 113, 113, 0.06);
+            border-color: rgba(248, 113, 113, 0.15);
+            color: #fca5a5;
+        }
+
+        /* Layer 2: Backend — Blue */
+        .layer-backend .layer-label {
+            background: rgba(96, 165, 250, 0.08);
+        }
+
+        .layer-backend .layer-label .name {
+            color: #60a5fa;
+        }
+
+        .layer-backend .layer-items {
+            background: rgba(96, 165, 250, 0.03);
+        }
+
+        .layer-backend .tech-chip {
+            background: rgba(96, 165, 250, 0.06);
+            border-color: rgba(96, 165, 250, 0.15);
+            color: #93c5fd;
+        }
+
+        /* Layer 3: Agents — Purple */
+        .layer-agents .layer-label {
+            background: rgba(167, 139, 250, 0.08);
+        }
+
+        .layer-agents .layer-label .name {
+            color: #a78bfa;
+        }
+
+        .layer-agents .layer-items {
+            background: rgba(167, 139, 250, 0.03);
+        }
+
+        .layer-agents .tech-chip {
+            background: rgba(167, 139, 250, 0.06);
+            border-color: rgba(167, 139, 250, 0.15);
+            color: #c4b5fd;
+        }
+
+        /* Layer 4: Browser & Tooling — Green */
+        .layer-tools .layer-label {
+            background: rgba(52, 211, 153, 0.08);
+        }
+
+        .layer-tools .layer-label .name {
+            color: #34d399;
+        }
+
+        .layer-tools .layer-items {
+            background: rgba(52, 211, 153, 0.03);
+        }
+
+        .layer-tools .tech-chip {
+            background: rgba(52, 211, 153, 0.06);
+            border-color: rgba(52, 211, 153, 0.15);
+            color: #6ee7b7;
+        }
+
+        /* Layer 5: Frontend — Cyan */
+        .layer-frontend .layer-label {
+            background: rgba(34, 211, 238, 0.08);
+        }
+
+        .layer-frontend .layer-label .name {
+            color: #22d3ee;
+        }
+
+        .layer-frontend .layer-items {
+            background: rgba(34, 211, 238, 0.03);
+        }
+
+        .layer-frontend .tech-chip {
+            background: rgba(34, 211, 238, 0.06);
+            border-color: rgba(34, 211, 238, 0.15);
+            color: #67e8f9;
+        }
+
+        /* Layer 6: Observability — Yellow */
+        .layer-observe .layer-label {
+            background: rgba(251, 191, 36, 0.08);
+        }
+
+        .layer-observe .layer-label .name {
+            color: #fbbf24;
+        }
+
+        .layer-observe .layer-items {
+            background: rgba(251, 191, 36, 0.03);
+        }
+
+        .layer-observe .tech-chip {
+            background: rgba(251, 191, 36, 0.06);
+            border-color: rgba(251, 191, 36, 0.15);
+            color: #fcd34d;
+        }
+
+        /* Layer 7: Infrastructure — Teal */
+        .layer-infra .layer-label {
+            background: rgba(45, 212, 191, 0.08);
+        }
+
+        .layer-infra .layer-label .name {
+            color: #2dd4bf;
+        }
+
+        .layer-infra .layer-items {
+            background: rgba(45, 212, 191, 0.03);
+        }
+
+        .layer-infra .tech-chip {
+            background: rgba(45, 212, 191, 0.06);
+            border-color: rgba(45, 212, 191, 0.15);
+            color: #5eead4;
+        }
+
+        /* Arrow connectors between layers */
+        .layer-connector {
+            display: flex;
+            justify-content: center;
+            position: relative;
+            z-index: 10;
+            height: 0;
+        }
+
+        .layer-connector::before {
+            content: '';
+            position: absolute;
+            top: -4px;
+            width: 2px;
+            height: 20px;
+            background: rgba(160, 180, 220, 0.1);
+        }
+
+        .brand {
+            position: absolute;
+            bottom: 12px;
+            right: 20px;
+            font-size: 10px;
+            color: rgba(160, 180, 220, 0.3);
+            letter-spacing: 1px;
+            z-index: 10;
+        }
+
+        /* Decorative corner accents */
+        .corner-accent {
+            position: absolute;
+            width: 100px;
+            height: 100px;
+            border-radius: 50%;
+            filter: blur(60px);
+            opacity: 0.15;
+            z-index: 1;
+        }
+
+        .corner-accent.tl {
+            top: -30px;
+            left: -30px;
+            background: #f87171;
+        }
+
+        .corner-accent.tr {
+            top: -30px;
+            right: -30px;
+            background: #60a5fa;
+        }
+
+        .corner-accent.bl {
+            bottom: -30px;
+            left: -30px;
+            background: #a78bfa;
+        }
+
+        .corner-accent.br {
+            bottom: -30px;
+            right: -30px;
+            background: #34d399;
+        }
+    </style>
+</head>
+
+<body>
+
+    <div class="infographic">
+        <div class="corner-accent tl"></div>
+        <div class="corner-accent tr"></div>
+        <div class="corner-accent bl"></div>
+        <div class="corner-accent br"></div>
+
+        <!-- Title -->
+        <div class="title-area">
+            <h1>PenSwarm AI — Tech Stack</h1>
+            <div class="subtitle">Architecture &amp; Technologies Powering the Platform</div>
+        </div>
+
+        <div class="layers">
+
+            <!-- Layer 1: AI / LLM Engine -->
+            <div class="layer layer-ai">
+                <div class="layer-label">
+                    <span class="icon">🧠</span>
+                    <span class="name">AI / LLM Engine</span>
+                    <span class="desc">Intelligence Core</span>
+                </div>
+                <div class="layer-items">
+                    <div class="tech-chip">
+                        <span class="chip-icon">🔷</span>
+                        <div class="chip-info">
+                            <span class="chip-name">Groq</span>
+                            <span class="chip-role">Ultra-fast Inference</span>
+                        </div>
+                    </div>
+                    <div class="tech-chip">
+                        <span class="chip-icon">☁️</span>
+                        <div class="chip-info">
+                            <span class="chip-name">Azure OpenAI</span>
+                            <span class="chip-role">Enterprise LLM</span>
+                        </div>
+                    </div>
+                    <div class="tech-chip">
+                        <span class="chip-icon">🟠</span>
+                        <div class="chip-info">
+                            <span class="chip-name">AWS Bedrock</span>
+                            <span class="chip-role">Multi-Model Access</span>
+                        </div>
+                    </div>
+                    <div class="tech-chip">
+                        <span class="chip-icon">🔄</span>
+                        <div class="chip-info">
+                            <span class="chip-name">Round-Robin Rotation</span>
+                            <span class="chip-role">Rate Limit Evasion</span>
+                        </div>
+                    </div>
+                    <div class="tech-chip">
+                        <span class="chip-icon">🤖</span>
+                        <div class="chip-info">
+                            <span class="chip-name">OpenAI SDK</span>
+                            <span class="chip-role">Unified API Client</span>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Layer 2: Backend Framework -->
+            <div class="layer layer-backend">
+                <div class="layer-label">
+                    <span class="icon">⚙️</span>
+                    <span class="name">Backend</span>
+                    <span class="desc">Server Framework</span>
+                </div>
+                <div class="layer-items">
+                    <div class="tech-chip">
+                        <span class="chip-icon">🐍</span>
+                        <div class="chip-info">
+                            <span class="chip-name">Python</span>
+                            <span class="chip-role">Core Language</span>
+                        </div>
+                    </div>
+                    <div class="tech-chip">
+                        <span class="chip-icon">🌶️</span>
+                        <div class="chip-info">
+                            <span class="chip-name">Flask</span>
+                            <span class="chip-role">Web Server & API</span>
+                        </div>
+                    </div>
+                    <div class="tech-chip">
+                        <span class="chip-icon">📡</span>
+                        <div class="chip-info">
+                            <span class="chip-name">Server-Sent Events</span>
+                            <span class="chip-role">Real-Time Log Streaming</span>
+                        </div>
+                    </div>
+                    <div class="tech-chip">
+                        <span class="chip-icon">🧵</span>
+                        <div class="chip-info">
+                            <span class="chip-name">Multi-Threading</span>
+                            <span class="chip-role">Concurrent Agent Execution</span>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Layer 3: AI Agent Swarm -->
+            <div class="layer layer-agents">
+                <div class="layer-label">
+                    <span class="icon">🐝</span>
+                    <span class="name">Agent Swarm</span>
+                    <span class="desc">6 Specialized Agents</span>
+                </div>
+                <div class="layer-items">
+                    <div class="tech-chip">
+                        <span class="chip-icon">📡</span>
+                        <div class="chip-info">
+                            <span class="chip-name">ReconAgent</span>
+                            <span class="chip-role">Attack Surface Discovery</span>
+                        </div>
+                    </div>
+                    <div class="tech-chip">
+                        <span class="chip-icon">🕷️</span>
+                        <div class="chip-info">
+                            <span class="chip-name">CrawlerAgent</span>
+                            <span class="chip-role">Deep Website Mapping</span>
+                        </div>
+                    </div>
+                    <div class="tech-chip">
+                        <span class="chip-icon">💡</span>
+                        <div class="chip-info">
+                            <span class="chip-name">ThinkerAgent</span>
+                            <span class="chip-role">Strategy Formulation</span>
+                        </div>
+                    </div>
+                    <div class="tech-chip">
+                        <span class="chip-icon">⚡</span>
+                        <div class="chip-info">
+                            <span class="chip-name">ExecutorAgent</span>
+                            <span class="chip-role">Dynamic Exploit Gen</span>
+                        </div>
+                    </div>
+                    <div class="tech-chip">
+                        <span class="chip-icon">🔐</span>
+                        <div class="chip-info">
+                            <span class="chip-name">AuthAgent</span>
+                            <span class="chip-role">Auth & Session Testing</span>
+                        </div>
+                    </div>
+                    <div class="tech-chip">
+                        <span class="chip-icon">🔬</span>
+                        <div class="chip-info">
+                            <span class="chip-name">CodeScannerAgent</span>
+                            <span class="chip-role">Source Code Audit</span>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Layer 4: Browser & Scanning Tools -->
+            <div class="layer layer-tools">
+                <div class="layer-label">
+                    <span class="icon">🔧</span>
+                    <span class="name">Scanning Toolkit</span>
+                    <span class="desc">Attack Tooling</span>
+                </div>
+                <div class="layer-items">
+                    <div class="tech-chip">
+                        <span class="chip-icon">🎭</span>
+                        <div class="chip-info">
+                            <span class="chip-name">Playwright</span>
+                            <span class="chip-role">Headless Browser Automation</span>
+                        </div>
+                    </div>
+                    <div class="tech-chip">
+                        <span class="chip-icon">🍜</span>
+                        <div class="chip-info">
+                            <span class="chip-name">BeautifulSoup</span>
+                            <span class="chip-role">HTML Parsing & Extraction</span>
+                        </div>
+                    </div>
+                    <div class="tech-chip">
+                        <span class="chip-icon">🌐</span>
+                        <div class="chip-info">
+                            <span class="chip-name">Requests</span>
+                            <span class="chip-role">HTTP Client & Fuzzing</span>
+                        </div>
+                    </div>
+                    <div class="tech-chip">
+                        <span class="chip-icon">🐙</span>
+                        <div class="chip-info">
+                            <span class="chip-name">Git</span>
+                            <span class="chip-role">Repo Cloning & Analysis</span>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Layer 5: Frontend -->
+            <div class="layer layer-frontend">
+                <div class="layer-label">
+                    <span class="icon">🖥️</span>
+                    <span class="name">Frontend</span>
+                    <span class="desc">User Interface</span>
+                </div>
+                <div class="layer-items">
+                    <div class="tech-chip">
+                        <span class="chip-icon">📄</span>
+                        <div class="chip-info">
+                            <span class="chip-name">HTML5</span>
+                            <span class="chip-role">Structure</span>
+                        </div>
+                    </div>
+                    <div class="tech-chip">
+                        <span class="chip-icon">🎨</span>
+                        <div class="chip-info">
+                            <span class="chip-name">CSS3</span>
+                            <span class="chip-role">Premium Dark UI</span>
+                        </div>
+                    </div>
+                    <div class="tech-chip">
+                        <span class="chip-icon">⚡</span>
+                        <div class="chip-info">
+                            <span class="chip-name">Vanilla JavaScript</span>
+                            <span class="chip-role">Logic & Real-Time Updates</span>
+                        </div>
+                    </div>
+                    <div class="tech-chip">
+                        <span class="chip-icon">📊</span>
+                        <div class="chip-info">
+                            <span class="chip-name">EventSource API</span>
+                            <span class="chip-role">Live Log Streaming</span>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Layer 6: Observability -->
+            <div class="layer layer-observe">
+                <div class="layer-label">
+                    <span class="icon">📈</span>
+                    <span class="name">Observability</span>
+                    <span class="desc">Monitoring & Traces</span>
+                </div>
+                <div class="layer-items">
+                    <div class="tech-chip">
+                        <span class="chip-icon">🔍</span>
+                        <div class="chip-info">
+                            <span class="chip-name">LangSmith</span>
+                            <span class="chip-role">LLM Tracing & Analytics</span>
+                        </div>
+                    </div>
+                    <div class="tech-chip">
+                        <span class="chip-icon">📝</span>
+                        <div class="chip-info">
+                            <span class="chip-name">Structured Logging</span>
+                            <span class="chip-role">Agent Activity Tracking</span>
+                        </div>
+                    </div>
+                    <div class="tech-chip">
+                        <span class="chip-icon">📋</span>
+                        <div class="chip-info">
+                            <span class="chip-name">Markdown Reports</span>
+                            <span class="chip-role">Auto-Generated Security Reports</span>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Layer 7: Infrastructure -->
+            <div class="layer layer-infra">
+                <div class="layer-label">
+                    <span class="icon">🏗️</span>
+                    <span class="name">Infrastructure</span>
+                    <span class="desc">Deployment</span>
+                </div>
+                <div class="layer-items">
+                    <div class="tech-chip">
+                        <span class="chip-icon">🔑</span>
+                        <div class="chip-info">
+                            <span class="chip-name">dotenv</span>
+                            <span class="chip-role">Secrets Management</span>
+                        </div>
+                    </div>
+                    <div class="tech-chip">
+                        <span class="chip-icon">🛡️</span>
+                        <div class="chip-info">
+                            <span class="chip-name">Safety Valves</span>
+                            <span class="chip-role">Rate Limits & Forbidden Paths</span>
+                        </div>
+                    </div>
+                    <div class="tech-chip">
+                        <span class="chip-icon">🧩</span>
+                        <div class="chip-info">
+                            <span class="chip-name">Modular Architecture</span>
+                            <span class="chip-role">Plug & Play Agents</span>
+                        </div>
+                    </div>
+                    <div class="tech-chip">
+                        <span class="chip-icon">📦</span>
+                        <div class="chip-info">
+                            <span class="chip-name">pip / requirements.txt</span>
+                            <span class="chip-role">Dependency Management</span>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+        </div>
+
+        <div class="brand">PENSWARM AI</div>
+    </div>
+
+</body>
+
+</html>

@@ -1,0 +1,578 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>PenSwarm — AI Pentesting Swarm Architecture</title>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800;900&display=swap"
+        rel="stylesheet">
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Inter', sans-serif;
+            background: #0a0e1a;
+            color: #e0e6f0;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            min-height: 100vh;
+            overflow: hidden;
+        }
+
+        .infographic {
+            width: 1200px;
+            height: 900px;
+            position: relative;
+            background: radial-gradient(ellipse at center, #111832 0%, #0a0e1a 70%);
+            overflow: hidden;
+        }
+
+        /* Subtle grid background */
+        .infographic::before {
+            content: '';
+            position: absolute;
+            inset: 0;
+            background-image:
+                linear-gradient(rgba(100, 140, 255, 0.03) 1px, transparent 1px),
+                linear-gradient(90deg, rgba(100, 140, 255, 0.03) 1px, transparent 1px);
+            background-size: 40px 40px;
+            pointer-events: none;
+        }
+
+        /* Title area */
+        .title-area {
+            text-align: center;
+            padding-top: 30px;
+            position: relative;
+            z-index: 10;
+        }
+
+        .title-area h1 {
+            font-size: 32px;
+            font-weight: 800;
+            background: linear-gradient(135deg, #60a5fa, #a78bfa, #f472b6);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            letter-spacing: -0.5px;
+        }
+
+        .subtitle {
+            margin-top: 8px;
+            font-size: 14px;
+            font-weight: 500;
+            letter-spacing: 4px;
+            text-transform: uppercase;
+            color: rgba(160, 180, 220, 0.7);
+        }
+
+        .subtitle span {
+            color: #60a5fa;
+        }
+
+        /* Hub area — center of the diagram */
+        .hub-container {
+            position: absolute;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            z-index: 10;
+        }
+
+        /* SVG connections layer */
+        .connections-layer {
+            position: absolute;
+            inset: 0;
+            z-index: 5;
+        }
+
+        /* Center orchestrator */
+        .orchestrator {
+            width: 170px;
+            height: 170px;
+            border-radius: 50%;
+            background: radial-gradient(circle at 30% 30%, #1e2a4a, #0f1629);
+            border: 2px solid rgba(96, 165, 250, 0.5);
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            box-shadow:
+                0 0 40px rgba(96, 165, 250, 0.15),
+                0 0 80px rgba(96, 165, 250, 0.05),
+                inset 0 0 30px rgba(96, 165, 250, 0.05);
+            position: relative;
+            animation: pulse-glow 3s ease-in-out infinite;
+        }
+
+        @keyframes pulse-glow {
+
+            0%,
+            100% {
+                box-shadow: 0 0 40px rgba(96, 165, 250, 0.15), 0 0 80px rgba(96, 165, 250, 0.05);
+            }
+
+            50% {
+                box-shadow: 0 0 60px rgba(96, 165, 250, 0.25), 0 0 100px rgba(96, 165, 250, 0.1);
+            }
+        }
+
+        .orchestrator .icon {
+            font-size: 40px;
+            margin-bottom: 6px;
+        }
+
+        .orchestrator .label {
+            font-size: 13px;
+            font-weight: 700;
+            text-align: center;
+            color: #93b8f0;
+            letter-spacing: 0.5px;
+        }
+
+        .orchestrator .sublabel {
+            font-size: 9px;
+            color: rgba(147, 184, 240, 0.6);
+            text-transform: uppercase;
+            letter-spacing: 1.5px;
+            margin-top: 2px;
+        }
+
+        /* Agent nodes */
+        .agent {
+            position: absolute;
+            width: 190px;
+            text-align: center;
+            z-index: 10;
+        }
+
+        .agent-circle {
+            width: 80px;
+            height: 80px;
+            border-radius: 50%;
+            margin: 0 auto 10px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 30px;
+            border: 2px solid;
+            backdrop-filter: blur(10px);
+            transition: transform 0.3s, box-shadow 0.3s;
+        }
+
+        .agent-circle:hover {
+            transform: scale(1.1);
+        }
+
+        .agent-name {
+            font-size: 13px;
+            font-weight: 700;
+            margin-bottom: 4px;
+        }
+
+        .agent-desc {
+            font-size: 10px;
+            color: rgba(200, 210, 230, 0.6);
+            line-height: 1.4;
+            max-width: 170px;
+            margin: 0 auto;
+        }
+
+        /* Agent positions (hub-and-spoke around center) */
+        .agent-recon {
+            top: 145px;
+            left: 100px;
+        }
+
+        .agent-crawler {
+            top: 145px;
+            right: 100px;
+        }
+
+        .agent-thinker {
+            top: 390px;
+            right: 50px;
+        }
+
+        .agent-executor {
+            bottom: 130px;
+            right: 100px;
+        }
+
+        .agent-auth {
+            bottom: 130px;
+            left: 100px;
+        }
+
+        .agent-verify {
+            top: 390px;
+            left: 50px;
+        }
+
+        /* Color themes */
+        .agent-recon .agent-circle {
+            background: rgba(34, 211, 238, 0.1);
+            border-color: rgba(34, 211, 238, 0.5);
+            box-shadow: 0 0 25px rgba(34, 211, 238, 0.15);
+        }
+
+        .agent-recon .agent-name {
+            color: #22d3ee;
+        }
+
+        .agent-crawler .agent-circle {
+            background: rgba(52, 211, 153, 0.1);
+            border-color: rgba(52, 211, 153, 0.5);
+            box-shadow: 0 0 25px rgba(52, 211, 153, 0.15);
+        }
+
+        .agent-crawler .agent-name {
+            color: #34d399;
+        }
+
+        .agent-thinker .agent-circle {
+            background: rgba(251, 191, 36, 0.1);
+            border-color: rgba(251, 191, 36, 0.5);
+            box-shadow: 0 0 25px rgba(251, 191, 36, 0.15);
+        }
+
+        .agent-thinker .agent-name {
+            color: #fbbf24;
+        }
+
+        .agent-executor .agent-circle {
+            background: rgba(248, 113, 113, 0.1);
+            border-color: rgba(248, 113, 113, 0.5);
+            box-shadow: 0 0 25px rgba(248, 113, 113, 0.15);
+        }
+
+        .agent-executor .agent-name {
+            color: #f87171;
+        }
+
+        .agent-auth .agent-circle {
+            background: rgba(167, 139, 250, 0.1);
+            border-color: rgba(167, 139, 250, 0.5);
+            box-shadow: 0 0 25px rgba(167, 139, 250, 0.15);
+        }
+
+        .agent-auth .agent-name {
+            color: #a78bfa;
+        }
+
+        .agent-verify .agent-circle {
+            background: rgba(45, 212, 191, 0.1);
+            border-color: rgba(45, 212, 191, 0.5);
+            box-shadow: 0 0 25px rgba(45, 212, 191, 0.15);
+        }
+
+        .agent-verify .agent-name {
+            color: #2dd4bf;
+        }
+
+        /* Input / Output labels */
+        .io-label {
+            position: absolute;
+            z-index: 10;
+            text-align: center;
+        }
+
+        .io-label.input-label {
+            top: 95px;
+            left: 50%;
+            transform: translateX(-50%);
+        }
+
+        .io-label.output-label {
+            bottom: 30px;
+            left: 50%;
+            transform: translateX(-50%);
+        }
+
+        .io-badge {
+            display: inline-flex;
+            align-items: center;
+            gap: 8px;
+            padding: 8px 20px;
+            border-radius: 30px;
+            font-size: 12px;
+            font-weight: 600;
+            letter-spacing: 0.5px;
+        }
+
+        .io-badge.input {
+            background: rgba(96, 165, 250, 0.1);
+            border: 1px solid rgba(96, 165, 250, 0.3);
+            color: #93c5fd;
+        }
+
+        .io-badge.output {
+            background: rgba(52, 211, 153, 0.1);
+            border: 1px solid rgba(52, 211, 153, 0.3);
+            color: #6ee7b7;
+        }
+
+        .io-badge .arrow {
+            font-size: 16px;
+        }
+
+        /* Self-healing ring */
+        .self-healing-ring {
+            position: absolute;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            width: 560px;
+            height: 560px;
+            border-radius: 50%;
+            border: 2px dashed rgba(244, 114, 182, 0.25);
+            z-index: 3;
+            animation: rotate-ring 40s linear infinite;
+        }
+
+        @keyframes rotate-ring {
+            from {
+                transform: translate(-50%, -50%) rotate(0deg);
+            }
+
+            to {
+                transform: translate(-50%, -50%) rotate(360deg);
+            }
+        }
+
+        .self-healing-label {
+            position: absolute;
+            bottom: 65px;
+            left: 50%;
+            transform: translateX(-50%);
+            z-index: 10;
+            text-align: center;
+        }
+
+        .self-healing-badge {
+            display: inline-flex;
+            align-items: center;
+            gap: 8px;
+            padding: 10px 24px;
+            border-radius: 30px;
+            background: rgba(244, 114, 182, 0.08);
+            border: 1px solid rgba(244, 114, 182, 0.3);
+            backdrop-filter: blur(10px);
+        }
+
+        .self-healing-badge .icon {
+            font-size: 18px;
+        }
+
+        .self-healing-badge .text {
+            font-size: 11px;
+            font-weight: 600;
+            color: #f9a8d4;
+            letter-spacing: 0.5px;
+        }
+
+        .self-healing-detail {
+            margin-top: 6px;
+            font-size: 10px;
+            color: rgba(249, 168, 212, 0.5);
+            letter-spacing: 0.5px;
+        }
+
+        /* SVG line styles */
+        .conn-line {
+            stroke-width: 1.5;
+            fill: none;
+            opacity: 0.4;
+        }
+
+        /* Animated data dots on connections */
+        .data-dot {
+            r: 3;
+            opacity: 0.8;
+        }
+
+        /* Brand mark */
+        .brand {
+            position: absolute;
+            bottom: 12px;
+            right: 20px;
+            font-size: 10px;
+            color: rgba(160, 180, 220, 0.3);
+            letter-spacing: 1px;
+            z-index: 10;
+        }
+    </style>
+</head>
+
+<body>
+
+    <div class="infographic">
+
+        <!-- Title -->
+        <div class="title-area">
+            <h1>AI Pentesting Swarm Architecture</h1>
+            <div class="subtitle">Autonomous · <span>Self-Healing</span> · Zero Human Intervention</div>
+        </div>
+
+        <!-- Input -->
+        <div class="io-label input-label">
+            <div class="io-badge input">
+                <span class="arrow">↓</span> INPUT: Live Target URL
+            </div>
+        </div>
+
+        <!-- SVG Connection Lines -->
+        <svg class="connections-layer" viewBox="0 0 1200 900">
+            <defs>
+                <linearGradient id="g-cyan" x1="0%" y1="0%" x2="100%" y2="100%">
+                    <stop offset="0%" stop-color="#22d3ee" stop-opacity="0.6" />
+                    <stop offset="100%" stop-color="#22d3ee" stop-opacity="0.1" />
+                </linearGradient>
+                <linearGradient id="g-green" x1="0%" y1="0%" x2="100%" y2="100%">
+                    <stop offset="0%" stop-color="#34d399" stop-opacity="0.6" />
+                    <stop offset="100%" stop-color="#34d399" stop-opacity="0.1" />
+                </linearGradient>
+                <linearGradient id="g-yellow" x1="100%" y1="0%" x2="0%" y2="100%">
+                    <stop offset="0%" stop-color="#fbbf24" stop-opacity="0.6" />
+                    <stop offset="100%" stop-color="#fbbf24" stop-opacity="0.1" />
+                </linearGradient>
+                <linearGradient id="g-red" x1="100%" y1="100%" x2="0%" y2="0%">
+                    <stop offset="0%" stop-color="#f87171" stop-opacity="0.6" />
+                    <stop offset="100%" stop-color="#f87171" stop-opacity="0.1" />
+                </linearGradient>
+                <linearGradient id="g-purple" x1="0%" y1="100%" x2="100%" y2="0%">
+                    <stop offset="0%" stop-color="#a78bfa" stop-opacity="0.6" />
+                    <stop offset="100%" stop-color="#a78bfa" stop-opacity="0.1" />
+                </linearGradient>
+                <linearGradient id="g-teal" x1="0%" y1="0%" x2="100%" y2="100%">
+                    <stop offset="0%" stop-color="#2dd4bf" stop-opacity="0.6" />
+                    <stop offset="100%" stop-color="#2dd4bf" stop-opacity="0.1" />
+                </linearGradient>
+            </defs>
+
+            <!-- Connection lines from center (600, 450) to each agent -->
+            <line class="conn-line" x1="600" y1="450" x2="195" y2="240" stroke="url(#g-cyan)" />
+            <line class="conn-line" x1="600" y1="450" x2="1005" y2="240" stroke="url(#g-green)" />
+            <line class="conn-line" x1="600" y1="450" x2="1055" y2="470" stroke="url(#g-yellow)" />
+            <line class="conn-line" x1="600" y1="450" x2="1005" y2="690" stroke="url(#g-red)" />
+            <line class="conn-line" x1="600" y1="450" x2="195" y2="690" stroke="url(#g-purple)" />
+            <line class="conn-line" x1="600" y1="450" x2="145" y2="470" stroke="url(#g-teal)" />
+
+            <!-- Animated dots traveling along lines -->
+            <circle class="data-dot" fill="#22d3ee">
+                <animateMotion dur="3s" repeatCount="indefinite" path="M600,450 L195,240" />
+            </circle>
+            <circle class="data-dot" fill="#34d399">
+                <animateMotion dur="3.5s" repeatCount="indefinite" path="M600,450 L1005,240" />
+            </circle>
+            <circle class="data-dot" fill="#fbbf24">
+                <animateMotion dur="2.8s" repeatCount="indefinite" path="M600,450 L1055,470" />
+            </circle>
+            <circle class="data-dot" fill="#f87171">
+                <animateMotion dur="3.2s" repeatCount="indefinite" path="M600,450 L1005,690" />
+            </circle>
+            <circle class="data-dot" fill="#a78bfa">
+                <animateMotion dur="3.7s" repeatCount="indefinite" path="M600,450 L195,690" />
+            </circle>
+            <circle class="data-dot" fill="#2dd4bf">
+                <animateMotion dur="2.5s" repeatCount="indefinite" path="M600,450 L145,470" />
+            </circle>
+
+            <!-- Return dots -->
+            <circle class="data-dot" fill="#22d3ee" opacity="0.5">
+                <animateMotion dur="3s" repeatCount="indefinite" path="M195,240 L600,450" begin="1.5s" />
+            </circle>
+            <circle class="data-dot" fill="#34d399" opacity="0.5">
+                <animateMotion dur="3.5s" repeatCount="indefinite" path="M1005,240 L600,450" begin="1.75s" />
+            </circle>
+            <circle class="data-dot" fill="#fbbf24" opacity="0.5">
+                <animateMotion dur="2.8s" repeatCount="indefinite" path="M1055,470 L600,450" begin="1.4s" />
+            </circle>
+            <circle class="data-dot" fill="#f87171" opacity="0.5">
+                <animateMotion dur="3.2s" repeatCount="indefinite" path="M1005,690 L600,450" begin="1.6s" />
+            </circle>
+            <circle class="data-dot" fill="#a78bfa" opacity="0.5">
+                <animateMotion dur="3.7s" repeatCount="indefinite" path="M195,690 L600,450" begin="1.85s" />
+            </circle>
+            <circle class="data-dot" fill="#2dd4bf" opacity="0.5">
+                <animateMotion dur="2.5s" repeatCount="indefinite" path="M145,470 L600,450" begin="1.25s" />
+            </circle>
+        </svg>
+
+        <!-- Self-Healing Ring -->
+        <div class="self-healing-ring"></div>
+
+        <!-- Center Orchestrator -->
+        <div class="hub-container">
+            <div class="orchestrator">
+                <div class="icon">🧠</div>
+                <div class="label">ORCHESTRATOR</div>
+                <div class="sublabel">Central Command</div>
+            </div>
+        </div>
+
+        <!-- Agent Nodes -->
+        <div class="agent agent-recon">
+            <div class="agent-circle">📡</div>
+            <div class="agent-name">ReconAgent</div>
+            <div class="agent-desc">Discovers attack surface: endpoints, tech stack, open ports</div>
+        </div>
+
+        <div class="agent agent-crawler">
+            <div class="agent-circle">🕷️</div>
+            <div class="agent-name">CrawlerAgent</div>
+            <div class="agent-desc">Maps every page, form, and hidden parameter</div>
+        </div>
+
+        <div class="agent agent-thinker">
+            <div class="agent-circle">💡</div>
+            <div class="agent-name">ThinkerAgent</div>
+            <div class="agent-desc">Strategizes targeted attack vectors in real-time</div>
+        </div>
+
+        <div class="agent agent-executor">
+            <div class="agent-circle">⚡</div>
+            <div class="agent-name">ExecutorAgent</div>
+            <div class="agent-desc">Writes & runs custom Python exploit scripts dynamically</div>
+        </div>
+
+        <div class="agent agent-auth">
+            <div class="agent-circle">🔐</div>
+            <div class="agent-name">AuthAgent</div>
+            <div class="agent-desc">Tests authentication, sessions & privilege escalation</div>
+        </div>
+
+        <div class="agent agent-verify">
+            <div class="agent-circle">✅</div>
+            <div class="agent-name">Verification</div>
+            <div class="agent-desc">Validates findings, eliminates false positives completely</div>
+        </div>
+
+        <!-- Self-Healing Label -->
+        <div class="self-healing-label">
+            <div class="self-healing-badge">
+                <span class="icon">🔄</span>
+                <span class="text">SELF-HEALING & ADAPTIVE STRATEGY ENGINE</span>
+            </div>
+            <div class="self-healing-detail">Blocked? → Analyze Failure → Rewrite Exploit → Retry Automatically</div>
+        </div>
+
+        <!-- Output -->
+        <div class="io-label output-label">
+            <div class="io-badge output">
+                <span class="arrow">↓</span> OUTPUT: Verified Penetration Test Report with Exploitation Evidence
+            </div>
+        </div>
+
+        <!-- Brand -->
+        <div class="brand">PENSWARM AI</div>
+    </div>
+
+</body>
+
+</html>

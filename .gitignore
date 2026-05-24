@@ -1,0 +1,11 @@
+venv/
+__pycache__/
+*.pyc
+.env
+*.log
+.vscode/
+response.json
+reports/
+*.png
+*.svg
+project.zip
